@@ -59,6 +59,10 @@ function insertCoverComponent() {
         const nodes = [];
         nodes.push(coverInstance);
         figma.viewport.scrollAndZoomIntoView(nodes);
+        // replace title in instance with title of file
+        yield figma.loadFontAsync({ family: "Inter", style: "Bold" });
+        const infoAutoLayout = findNode(coverInstance.children, "info");
+        findNode(infoAutoLayout.children, "file_name").characters = figma.root.name;
         // replace image in instance with exported image of selection
         const imageArr = yield selection.exportAsync({ format: "PNG" });
         var hash = figma.createImage(imageArr).hash;
