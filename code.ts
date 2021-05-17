@@ -10,7 +10,6 @@ let coverInstance: InstanceNode;
 let selection: SceneNode;
 
 figma.ui.onmessage = async (msg) => {
-  console.log(msg.designers);
   if (msg.type === "finish") {
     // capture selection before creating page, or selection will be negated
     selection = figma.currentPage.selection[0];
@@ -67,7 +66,7 @@ async function insertCoverComponent(msg) {
   // replace title in instance with title of file
   await figma.loadFontAsync({ family: "Inter", style: "Regular" });
   const team_members = findNode(infoAutoLayout.children, "team_members");
-  team_members.characters = `Designer(s):${msg.designers}`;
+  team_members.characters = `PM(s):${msg.PMs}\nDesigner(s):${msg.designers}`;
 
   // replace image in instance with exported image of selection
   const imageArr = await selection.exportAsync({ format: "PNG" });

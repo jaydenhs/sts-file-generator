@@ -16,7 +16,6 @@ let coverPage;
 let coverInstance;
 let selection;
 figma.ui.onmessage = (msg) => __awaiter(this, void 0, void 0, function* () {
-    console.log(msg.designers);
     if (msg.type === "finish") {
         // capture selection before creating page, or selection will be negated
         selection = figma.currentPage.selection[0];
@@ -70,7 +69,7 @@ function insertCoverComponent(msg) {
         // replace title in instance with title of file
         yield figma.loadFontAsync({ family: "Inter", style: "Regular" });
         const team_members = findNode(infoAutoLayout.children, "team_members");
-        team_members.characters = `Designer(s):${msg.designers}`;
+        team_members.characters = `PM(s):${msg.PMs}\nDesigner(s):${msg.designers}`;
         // replace image in instance with exported image of selection
         const imageArr = yield selection.exportAsync({ format: "PNG" });
         var hash = figma.createImage(imageArr).hash;

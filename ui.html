@@ -1,4 +1,4 @@
-<h2>StructionSite File Generator</h2>
+<h1>StructionSite File Generator</h1>
 
 <div id="container"> </div>
 
@@ -6,12 +6,18 @@
 <button id="cancel">Cancel</button>
 
 <script>
-  var members = [
-    "Jayden Hsiao",
-    "Wayde Mecham",
-    "Sudeshna Pantham",
-    "Deyge Falanai"
-  ];
+  var members = {
+    "PMs": [
+      "Tom Alterman",
+      "Brie Williams",
+    ],
+    "Designers": [
+      "Jayden Hsiao",
+      "Wayde Mecham",
+      "Sudeshna Pantham",
+      "Deyge Falanai"
+    ]
+  };
 
   function abbrev_name(name) {
     var split_names = name.trim().split(" ");
@@ -23,32 +29,41 @@
 
   // Container <div> where dynamic content will be placed
   var container = document.getElementById("container");
-  for (const member of members) {
-    const name = member;
+  for (const role in members) {
+    const roleTitle = document.createElement("h2")
+    roleTitle.innerHTML = role
+    container.appendChild(roleTitle);
 
-    var input = document.createElement("input");
-    input.type = "checkbox";
-    input.id = name;
-    input.name = name;
-    input.value = abbrev_name(name);
-    container.appendChild(input);
+    for (const name of members[role]) {
+      var input = document.createElement("input");
+      input.type = "checkbox";
+      input.id = role;
+      input.name = name;
+      input.value = abbrev_name(name);
+      container.appendChild(input);
 
-    var label = document.createElement("label");
-    label.for = name;
-    label.innerHTML = name;
-    container.appendChild(label);
+      var label = document.createElement("label");
+      label.for = label.innerHTML = name;
+      container.appendChild(label);
 
-    container.appendChild(document.createElement("br"));
+      container.appendChild(document.createElement("br"));
+    }
   }
 
   document.getElementById("finish").onclick = () => {
-    var designers = "";
+    var designers = PMs = "";
     var markedCheckbox = document.getElementsByTagName("input");
     for (var checkbox of markedCheckbox) {
-      if (checkbox.checked) designers = designers.concat(` ${checkbox.value},`);
+      if (checkbox.checked) {
+        if (checkbox.id === "Designers") {
+          designers = designers.concat(` ${checkbox.value},`);
+        } else if (checkbox.id === "PMs") {
+          PMs = PMs.concat(` ${checkbox.value},`);
+        }
+      }
     }
     designers = designers.slice(0, -1);
-    parent.postMessage({ pluginMessage: { type: "finish", designers } }, "*");
+    parent.postMessage({ pluginMessage: { type: "finish", designers, PMs } }, "*");
   };
 
   document.getElementById("cancel").onclick = () => {
