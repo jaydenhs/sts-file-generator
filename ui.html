@@ -76,19 +76,31 @@
   }
 
   document.getElementById("finish").onclick = () => {
-    var designers = PMs = "";
-    var markedCheckbox = document.getElementsByTagName("input");
-    for (var checkbox of markedCheckbox) {
+    let designers = PMs = "";
+    let num_of_designers = num_of_PMs = 0;
+
+    // For each checked checkbox, concatenate that value to the text
+    const markedCheckbox = document.getElementsByTagName("input");
+    for (const checkbox of markedCheckbox) {
       if (checkbox.checked) {
         if (checkbox.name === "Designers") {
           designers = designers.concat(` ${checkbox.value},`);
+          num_of_designers++
         } else if (checkbox.name === "PMs") {
           PMs = PMs.concat(` ${checkbox.value},`);
+          num_of_PMs++
         }
       }
     }
+
+    // Prepend plurality depending on the number of members in each role
+    num_of_designers === 1 ? designers = `Designer:${designers}` : designers = `Designers:${designers}`
+    num_of_PMs === 1 ? PMs = `PM:${PMs}` : PMs = `PMs:${PMs}`
+
+    // Remove the comma from the last entry
     designers = designers.slice(0, -1);
     PMs = PMs.slice(0, -1);
+
     parent.postMessage({ pluginMessage: { type: "finish", designers, PMs } }, "*");
   };
 

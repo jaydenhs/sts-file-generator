@@ -14,19 +14,29 @@ figma.showUI(__html__);
 figma.ui.resize(460, 350);
 let coverPage;
 let coverInstance;
+let coverComponent;
+let coverFrame;
 let selection;
 figma.ui.onmessage = (msg) => __awaiter(this, void 0, void 0, function* () {
     if (msg.type === "finish") {
         // capture selection before creating page, or selection will be negated
         selection = figma.currentPage.selection[0];
         createPage();
-        insertCoverComponent(msg);
+        // only close plugin after everything is finished
+        insertCoverComponent(msg).then(() => figma.closePlugin());
     }
     else if ((msg.type = "cancel")) {
         figma.closePlugin();
     }
     // figma.closePlugin();
 });
+function createPage() {
+    coverPage = figma.createPage();
+    coverPage.name = "Cover";
+    figma.currentPage = coverPage;
+    // insert new page at the top of the root (first page)
+    figma.root.insertChild(0, coverPage);
+}
 function getCover() {
     return __awaiter(this, void 0, void 0, function* () {
         // get cover component by its key
@@ -38,9 +48,13 @@ function getCover() {
 }
 function insertCoverComponent(msg) {
     return __awaiter(this, void 0, void 0, function* () {
-        let coverComponent = yield getCover();
+        coverComponent = yield getCover();
         coverInstance = coverComponent.createInstance();
-        coverPage.appendChild(coverInstance);
+        coverFrame = figma.createFrame();
+        coverFrame.name = "Cover Frame";
+        coverFrame.resize(coverInstance.width, coverInstance.height);
+        coverPage.appendChild(coverFrame);
+        coverFrame.appendChild(coverInstance);
         // set cover page's background color to be the same as the cover's
         // saves the grunt work of having to update the hex code if the cover changes
         // default to dark grey if the cover instance is not a solid color
@@ -69,7 +83,7 @@ function insertCoverComponent(msg) {
         // replace title in instance with title of file
         yield figma.loadFontAsync({ family: "Inter", style: "Regular" });
         const team_members = findNode(infoAutoLayout.children, "team_members");
-        team_members.characters = `PM(s):${msg.PMs}\nDesigner(s):${msg.designers}`;
+        team_members.characters = `${msg.PMs}\n${msg.designers}`;
         // replace image in instance with exported image of selection
         const imageArr = yield selection.exportAsync({ format: "PNG" });
         var hash = figma.createImage(imageArr).hash;
@@ -84,13 +98,6 @@ function findNode(children, string) {
             return node;
         }
     }
-}
-function createPage() {
-    coverPage = figma.createPage();
-    coverPage.name = "Cover";
-    figma.currentPage = coverPage;
-    // insert new page at the top of the root (first page)
-    figma.root.insertChild(0, coverPage);
 }
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);

@@ -7,6 +7,8 @@ figma.ui.resize(460, 350);
 
 let coverPage: PageNode;
 let coverInstance: InstanceNode;
+let coverComponent: ComponentNode;
+let coverFrame: FrameNode;
 let selection: SceneNode;
 
 figma.ui.onmessage = async (msg) => {
@@ -15,12 +17,22 @@ figma.ui.onmessage = async (msg) => {
     selection = figma.currentPage.selection[0];
 
     createPage();
-    insertCoverComponent(msg);
+    // only close plugin after everything is finished
+    insertCoverComponent(msg).then(() => figma.closePlugin());
   } else if ((msg.type = "cancel")) {
     figma.closePlugin();
   }
   // figma.closePlugin();
 };
+
+function createPage() {
+  coverPage = figma.createPage();
+  coverPage.name = "Cover";
+  figma.currentPage = coverPage;
+
+  // insert new page at the top of the root (first page)
+  figma.root.insertChild(0, coverPage);
+}
 
 async function getCover() {
   // get cover component by its key
@@ -31,9 +43,14 @@ async function getCover() {
 }
 
 async function insertCoverComponent(msg) {
-  let coverComponent = await getCover();
+  coverComponent = await getCover();
   coverInstance = coverComponent.createInstance();
-  coverPage.appendChild(coverInstance);
+
+  coverFrame = figma.createFrame();
+  coverFrame.name = "Cover Frame";
+  coverFrame.resize(coverInstance.width, coverInstance.height);
+  coverPage.appendChild(coverFrame);
+  coverFrame.appendChild(coverInstance);
 
   // set cover page's background color to be the same as the cover's
   // saves the grunt work of having to update the hex code if the cover changes
@@ -66,7 +83,7 @@ async function insertCoverComponent(msg) {
   // replace title in instance with title of file
   await figma.loadFontAsync({ family: "Inter", style: "Regular" });
   const team_members = findNode(infoAutoLayout.children, "team_members");
-  team_members.characters = `PM(s):${msg.PMs}\nDesigner(s):${msg.designers}`;
+  team_members.characters = `${msg.PMs}\n${msg.designers}`;
 
   // replace image in instance with exported image of selection
   const imageArr = await selection.exportAsync({ format: "PNG" });
@@ -82,15 +99,6 @@ function findNode(children, string) {
       return node;
     }
   }
-}
-
-function createPage() {
-  coverPage = figma.createPage();
-  coverPage.name = "Cover";
-  figma.currentPage = coverPage;
-
-  // insert new page at the top of the root (first page)
-  figma.root.insertChild(0, coverPage);
 }
 
 function hexToRgb(hex) {
