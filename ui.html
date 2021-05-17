@@ -1,30 +1,57 @@
 <h2>StructionSite File Generator</h2>
 
-<form>
-  <input type="checkbox" id="deyge" name="deyge" value="Deyge F.">
-  <label for="deyge">Deyge Falanai</label><br>
-  <input type="checkbox" id="sudeshna" name="sudeshna" value="Sudeshna P.">
-  <label for="sudeshna">Sudeshna Pantham</label><br>
-</form>
+<div id="container"> </div>
 
 <button id="finish">Finish</button>
 <button id="cancel">Cancel</button>
 
 <script>
+  var members = [
+    "Jayden Hsiao",
+    "Wayde Mecham",
+    "Sudeshna Pantham",
+    "Deyge Falanai"
+  ];
 
-document.getElementById('finish').onclick = () => {
-  var designers = "";
-  var markedCheckbox = document.getElementsByTagName('input');
-  for (var checkbox of markedCheckbox) {
-    if (checkbox.checked)
-      designers = designers.concat(` ${checkbox.value},`);
+  function abbrev_name(name) {
+    var split_names = name.trim().split(" ");
+    if (split_names.length > 1) {
+      return (split_names[0] + " " + split_names[1].charAt(0) + ".");
+    }
+    return split_names[0];
+  };
+
+  // Container <div> where dynamic content will be placed
+  var container = document.getElementById("container");
+  for (const member of members) {
+    const name = member;
+
+    var input = document.createElement("input");
+    input.type = "checkbox";
+    input.id = name;
+    input.name = name;
+    input.value = abbrev_name(name);
+    container.appendChild(input);
+
+    var label = document.createElement("label");
+    label.for = name;
+    label.innerHTML = name;
+    container.appendChild(label);
+
+    container.appendChild(document.createElement("br"));
   }
-  designers = designers.slice(0, -1)
-  parent.postMessage({ pluginMessage: { type: 'finish', designers } }, '*')
-}
 
-document.getElementById('cancel').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
-}
+  document.getElementById("finish").onclick = () => {
+    var designers = "";
+    var markedCheckbox = document.getElementsByTagName("input");
+    for (var checkbox of markedCheckbox) {
+      if (checkbox.checked) designers = designers.concat(` ${checkbox.value},`);
+    }
+    designers = designers.slice(0, -1);
+    parent.postMessage({ pluginMessage: { type: "finish", designers } }, "*");
+  };
 
+  document.getElementById("cancel").onclick = () => {
+    parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
+  };
 </script>
