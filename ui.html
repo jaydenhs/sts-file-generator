@@ -1,12 +1,36 @@
-<h1>StructionSite File Generator</h1>
+<head>
+  <style>
+    * {
+      font-family: 'Inter', sans-serif;
+    }
 
-<div id="container"> </div>
+    h1 {
+      margin-bottom: -0.5rem;
+    }
 
-<button id="finish">Finish</button>
-<button id="cancel">Cancel</button>
+    h2 {
+      margin-bottom: 0.5rem;
+    }
+
+    #container {
+      margin-bottom: 1.5rem;
+    }
+  </style>
+
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <h1>StructionSite File Generator</h1>
+  <div id="container"></div>
+
+  <button id="finish">Finish</button>
+  <button id="cancel">Cancel</button>
+</body>
 
 <script>
-  var members = {
+  const members = {
     "PMs": [
       "Tom Alterman",
       "Brie Williams",
@@ -28,22 +52,23 @@
   };
 
   // Container <div> where dynamic content will be placed
-  var container = document.getElementById("container");
+  const container = document.getElementById("container");
   for (const role in members) {
     const roleTitle = document.createElement("h2")
     roleTitle.innerHTML = role
     container.appendChild(roleTitle);
 
     for (const name of members[role]) {
-      var input = document.createElement("input");
+      const input = document.createElement("input");
       input.type = "checkbox";
-      input.id = role;
-      input.name = name;
+      input.id = name;
+      input.name = role;
       input.value = abbrev_name(name);
       container.appendChild(input);
 
-      var label = document.createElement("label");
-      label.for = label.innerHTML = name;
+      const label = document.createElement("label");
+      label.htmlFor = name;
+      label.innerHTML = name;
       container.appendChild(label);
 
       container.appendChild(document.createElement("br"));
@@ -55,14 +80,15 @@
     var markedCheckbox = document.getElementsByTagName("input");
     for (var checkbox of markedCheckbox) {
       if (checkbox.checked) {
-        if (checkbox.id === "Designers") {
+        if (checkbox.name === "Designers") {
           designers = designers.concat(` ${checkbox.value},`);
-        } else if (checkbox.id === "PMs") {
+        } else if (checkbox.name === "PMs") {
           PMs = PMs.concat(` ${checkbox.value},`);
         }
       }
     }
     designers = designers.slice(0, -1);
+    PMs = PMs.slice(0, -1);
     parent.postMessage({ pluginMessage: { type: "finish", designers, PMs } }, "*");
   };
 
