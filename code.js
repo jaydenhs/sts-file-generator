@@ -16,30 +16,13 @@ let selection;
 let component;
 figma.ui.onmessage = (msg) => __awaiter(this, void 0, void 0, function* () {
     if (msg.type === "finish") {
-        // // capture selection before creating page, or selection will be negated
-        // selection = figma.currentPage.selection[0];
-        // component = figma.currentPage.selection[0];
-        // console.log(component);
-        // console.log(selection.key);
-        // const imageArr = await selection.exportAsync({ format: "PNG" });
-        // var hash = figma.createImage(imageArr).hash;
-        // // viewport
-        // var viewport = figma.viewport.center;
-        // // create rectangle and set image fill
-        // const rect = figma.createRectangle();
-        // // set x and y coordinates with viewport values
-        // rect.x = viewport.x;
-        // rect.y = viewport.y;
-        // rect.resize(500, 500);
-        // // set type to IMAGE and set fill with image hash data
-        // rect.fills = [{ type: "IMAGE", scaleMode: "FILL", imageHash: hash }];
-        // // add image to Figma
-        // figma.currentPage.appendChild(rect);
+        // capture selection before creating page, or selection will be negated
+        selection = figma.currentPage.selection[0];
         createPage();
         insertCoverComponent();
         // insertMockup();
     }
-    figma.closePlugin();
+    // figma.closePlugin();
 });
 function getCover() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -76,6 +59,12 @@ function insertCoverComponent() {
         const nodes = [];
         nodes.push(coverInstance);
         figma.viewport.scrollAndZoomIntoView(nodes);
+        const imageArr = yield selection.exportAsync({ format: "PNG" });
+        var hash = figma.createImage(imageArr).hash;
+        // set type to IMAGE and set fill with image hash data
+        coverInstance.children[0].children[0].children[1].fills = [
+            { type: "IMAGE", scaleMode: "FILL", imageHash: hash },
+        ];
     });
 }
 function createPage() {
