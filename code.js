@@ -17,6 +17,7 @@ let coverInstance;
 let coverComponent;
 let coverFrame;
 let selection;
+let removePage;
 figma.ui.onmessage = (msg) => __awaiter(this, void 0, void 0, function* () {
     if (msg.type === "finish") {
         // capture selection before creating page, or selection will be negated
@@ -30,10 +31,16 @@ figma.ui.onmessage = (msg) => __awaiter(this, void 0, void 0, function* () {
     }
 });
 function createPages(msg) {
-    coverPage = figma.createPage();
+    // Remove any current blank page (ex: default "Page 1")
+    // Easier for users who are initializing file scaffolding
+    if (!figma.currentPage.children.length) {
+        coverPage = figma.currentPage;
+    }
+    else {
+        coverPage = figma.createPage();
+    }
     coverPage.name = "Cover";
     figma.currentPage = coverPage;
-    console.log(msg.pagePreset);
     // insert new page at the top of the root (first page)
     figma.root.insertChild(0, coverPage);
     for (let i = 0; i < msg.pagePreset.length; i++) {
@@ -90,11 +97,13 @@ function insertCoverComponent(msg) {
         const team_members = findNode(infoAutoLayout.children, "team_members");
         team_members.characters = `${msg.PMs}\n${msg.designers}`;
         // replace image in instance with exported image of selection
-        const imageArr = yield selection.exportAsync({ format: "PNG" });
-        var hash = figma.createImage(imageArr).hash;
-        const mockup = findNode(coverInstance.children, "mockup");
-        const preview_img = findNode(mockup.children, "preview_img");
-        preview_img.fills = [{ type: "IMAGE", scaleMode: "FILL", imageHash: hash }];
+        if (selection !== undefined) {
+            const imageArr = yield selection.exportAsync({ format: "PNG" });
+            var hash = figma.createImage(imageArr).hash;
+            const mockup = findNode(coverInstance.children, "mockup");
+            const preview_img = findNode(mockup.children, "preview_img");
+            preview_img.fills = [{ type: "IMAGE", scaleMode: "FILL", imageHash: hash }];
+        }
     });
 }
 function findNode(children, string) {

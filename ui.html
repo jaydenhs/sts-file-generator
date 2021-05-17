@@ -130,7 +130,7 @@
     }
 
     const rbs = document.querySelectorAll('input[name="presets"]:checked');
-    const pagePreset = presets[`${rbs[0].value}`]
+    let pagePreset = presets[`${rbs[0]?.value}`] ?? []
 
     // Prepend plurality depending on the number of members in each role
     num_of_designers === 1 ? designers = `Designer:${designers}` : designers = `Designers:${designers}`

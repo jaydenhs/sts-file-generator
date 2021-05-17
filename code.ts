@@ -10,6 +10,7 @@ let coverInstance: InstanceNode;
 let coverComponent: ComponentNode;
 let coverFrame: FrameNode;
 let selection: SceneNode;
+let removePage: PageNode;
 
 figma.ui.onmessage = async (msg) => {
   if (msg.type === "finish") {
@@ -25,11 +26,16 @@ figma.ui.onmessage = async (msg) => {
 };
 
 function createPages(msg) {
-  coverPage = figma.createPage();
+  // Remove any current blank page (ex: default "Page 1")
+  // Easier for users who are initializing file scaffolding
+  if (!figma.currentPage.children.length) {
+    coverPage = figma.currentPage;
+  } else {
+    coverPage = figma.createPage();
+  }
   coverPage.name = "Cover";
   figma.currentPage = coverPage;
 
-  console.log(msg.pagePreset);
   // insert new page at the top of the root (first page)
   figma.root.insertChild(0, coverPage);
 
@@ -92,11 +98,13 @@ async function insertCoverComponent(msg) {
   team_members.characters = `${msg.PMs}\n${msg.designers}`;
 
   // replace image in instance with exported image of selection
-  const imageArr = await selection.exportAsync({ format: "PNG" });
-  var hash = figma.createImage(imageArr).hash;
-  const mockup = findNode(coverInstance.children, "mockup");
-  const preview_img = findNode(mockup.children, "preview_img");
-  preview_img.fills = [{ type: "IMAGE", scaleMode: "FILL", imageHash: hash }];
+  if (selection !== undefined) {
+    const imageArr = await selection.exportAsync({ format: "PNG" });
+    var hash = figma.createImage(imageArr).hash;
+    const mockup = findNode(coverInstance.children, "mockup");
+    const preview_img = findNode(mockup.children, "preview_img");
+    preview_img.fills = [{ type: "IMAGE", scaleMode: "FILL", imageHash: hash }];
+  }
 }
 
 function findNode(children, string) {
