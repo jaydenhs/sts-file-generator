@@ -1,0 +1,15 @@
+<h2>StructionSite File Generator</h2>
+<button id="finish">Finish</button>
+<button id="cancel">Cancel</button>
+
+<script>
+document.getElementById('finish').onclick = () => {
+  console.log("finish")
+  parent.postMessage({ pluginMessage: { type: 'finish', } }, '*')
+}
+
+document.getElementById('cancel').onclick = () => {
+  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+}
+
+</script>
