@@ -1,11 +1,13 @@
+// notes:
+// move image with crop
+// can't programatically set frame as thumbnail with plugin api yet
+
 figma.showUI(__html__);
 figma.ui.resize(460, 350);
 
 let coverPage: PageNode;
 let coverInstance: InstanceNode;
-let frame: FrameNode;
 let selection: SceneNode;
-let component: ComponentNode;
 
 figma.ui.onmessage = async (msg) => {
   if (msg.type === "finish") {
@@ -14,8 +16,6 @@ figma.ui.onmessage = async (msg) => {
 
     createPage();
     insertCoverComponent();
-
-    // insertMockup();
   }
   // figma.closePlugin();
 };
@@ -56,12 +56,20 @@ async function insertCoverComponent() {
   nodes.push(coverInstance);
   figma.viewport.scrollAndZoomIntoView(nodes);
 
+  // replace image in instance with exported image of selection
   const imageArr = await selection.exportAsync({ format: "PNG" });
   var hash = figma.createImage(imageArr).hash;
-  // set type to IMAGE and set fill with image hash data
-  coverInstance.children[0].children[0].children[1].fills = [
-    { type: "IMAGE", scaleMode: "FILL", imageHash: hash },
-  ];
+  const mockup = findNode(coverInstance.children, "mockup");
+  const preview_img = findNode(mockup.children, "preview_img");
+  preview_img.fills = [{ type: "IMAGE", scaleMode: "FILL", imageHash: hash }];
+}
+
+function findNode(children, string) {
+  for (const node of children) {
+    if (node.name === string) {
+      return node;
+    }
+  }
 }
 
 function createPage() {
@@ -72,31 +80,6 @@ function createPage() {
   // insert new page at the top of the root (first page)
   figma.root.insertChild(0, coverPage);
 }
-
-// function insertMockup() {
-//   // Selected node must be a frame to work
-//   if (selection.type !== "FRAME") {
-//     figma.ui.postMessage({
-//       type: "error",
-//       value: "select a frame to render into",
-//     });
-//     return "error";
-//   }
-
-//   var mask = figma.createRectangle();
-//   mask.resize(934, 751);
-//   mask.isMask = true;
-//   frame.appendChild(mask);
-
-//   //* eventually want to export as image for easier adjusting
-//   //* https://www.figma.com/plugin-docs/api/FrameNode/#exportasync
-//   var mockup = selection.clone();
-//   var scale_factor = 934 / mockup.width;
-//   mockup.rescale(scale_factor);
-//   mockup.x = 120.33;
-//   mockup.y = 83.95;
-//   frame.appendChild(mockup);
-// }
 
 function hexToRgb(hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
