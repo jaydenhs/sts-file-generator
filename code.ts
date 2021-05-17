@@ -16,22 +16,28 @@ figma.ui.onmessage = async (msg) => {
     // capture selection before creating page, or selection will be negated
     selection = figma.currentPage.selection[0];
 
-    createPage();
+    createPages(msg);
     // only close plugin after everything is finished
     insertCoverComponent(msg).then(() => figma.closePlugin());
   } else if ((msg.type = "cancel")) {
     figma.closePlugin();
   }
-  // figma.closePlugin();
 };
 
-function createPage() {
+function createPages(msg) {
   coverPage = figma.createPage();
   coverPage.name = "Cover";
   figma.currentPage = coverPage;
 
+  console.log(msg.pagePreset);
   // insert new page at the top of the root (first page)
   figma.root.insertChild(0, coverPage);
+
+  for (let i = 0; i < msg.pagePreset.length; i++) {
+    let page = figma.createPage();
+    page.name = msg.pagePreset[i];
+    figma.root.insertChild(i + 1, page);
+  }
 }
 
 async function getCover() {
