@@ -1,11 +1,26 @@
 <h2>StructionSite File Generator</h2>
+
+<form>
+  <input type="checkbox" id="deyge" name="deyge" value="Deyge F.">
+  <label for="deyge">Deyge Falanai</label><br>
+  <input type="checkbox" id="sudeshna" name="sudeshna" value="Sudeshna P.">
+  <label for="sudeshna">Sudeshna Pantham</label><br>
+</form>
+
 <button id="finish">Finish</button>
 <button id="cancel">Cancel</button>
 
 <script>
+
 document.getElementById('finish').onclick = () => {
-  console.log("finish")
-  parent.postMessage({ pluginMessage: { type: 'finish', } }, '*')
+  var designers = "";
+  var markedCheckbox = document.getElementsByTagName('input');
+  for (var checkbox of markedCheckbox) {
+    if (checkbox.checked)
+      designers = designers.concat(` ${checkbox.value},`);
+  }
+  designers = designers.slice(0, -1)
+  parent.postMessage({ pluginMessage: { type: 'finish', designers } }, '*')
 }
 
 document.getElementById('cancel').onclick = () => {

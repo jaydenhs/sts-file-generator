@@ -10,12 +10,15 @@ let coverInstance: InstanceNode;
 let selection: SceneNode;
 
 figma.ui.onmessage = async (msg) => {
+  console.log(msg.designers);
   if (msg.type === "finish") {
     // capture selection before creating page, or selection will be negated
     selection = figma.currentPage.selection[0];
 
     createPage();
-    insertCoverComponent();
+    insertCoverComponent(msg);
+  } else if ((msg.type = "cancel")) {
+    figma.closePlugin();
   }
   // figma.closePlugin();
 };
@@ -28,7 +31,7 @@ async function getCover() {
   return component;
 }
 
-async function insertCoverComponent() {
+async function insertCoverComponent(msg) {
   let coverComponent = await getCover();
   coverInstance = coverComponent.createInstance();
   coverPage.appendChild(coverInstance);
@@ -60,6 +63,11 @@ async function insertCoverComponent() {
   await figma.loadFontAsync({ family: "Inter", style: "Bold" });
   const infoAutoLayout = findNode(coverInstance.children, "info");
   findNode(infoAutoLayout.children, "file_name").characters = figma.root.name;
+
+  // replace title in instance with title of file
+  await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+  const team_members = findNode(infoAutoLayout.children, "team_members");
+  team_members.characters = `Designer(s):${msg.designers}`;
 
   // replace image in instance with exported image of selection
   const imageArr = await selection.exportAsync({ format: "PNG" });
